@@ -3,6 +3,7 @@ package fontys.ict.kwetter.KwetterAuthenticationService.service;
 import fontys.ict.kwetter.KwetterAuthenticationService.models.CredentialsDao;
 import fontys.ict.kwetter.KwetterAuthenticationService.models.CredentialsDto;
 import fontys.ict.kwetter.KwetterAuthenticationService.repositories.CredentialsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,14 +15,12 @@ import java.util.Optional;
 
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
-    private final CredentialsRepository credentialsRepository;
+    @Autowired
+    private CredentialsRepository credentialsRepository;
 
-    private final PasswordEncoder bcryptEncoder;
+    @Autowired
+    private PasswordEncoder bcryptEncoder;
 
-    public JwtUserDetailsService(CredentialsRepository credentialsRepository, PasswordEncoder bcryptEncoder) {
-        this.credentialsRepository = credentialsRepository;
-        this.bcryptEncoder = bcryptEncoder;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

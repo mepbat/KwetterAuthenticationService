@@ -1,4 +1,4 @@
-package com.pharma.credentials.config;
+package fontys.ict.kwetter.KwetterAuthenticationService.config;
 
 import fontys.ict.kwetter.KwetterAuthenticationService.config.JwtAuthenticationEntryPoint;
 import fontys.ict.kwetter.KwetterAuthenticationService.config.JwtRequestFilter;
