@@ -38,4 +38,9 @@ public class JwtUserDetailsService implements UserDetailsService {
         newCredentials.setHashedPassword(bcryptEncoder.encode(credentialsDto.getPassword()));
         return credentialsRepository.save(newCredentials);
     }
+
+    public Optional<CredentialsDao> getCredentialsByUsername(String username){
+        return credentialsRepository.findByUsername(username);
+    }
+
 }

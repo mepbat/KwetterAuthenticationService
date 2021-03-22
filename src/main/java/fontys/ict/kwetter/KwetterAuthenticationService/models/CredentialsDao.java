@@ -14,7 +14,6 @@ public class CredentialsDao {
     private String hashedPassword;
 
     @GeneratedValue
-    @Column(name = "account_id")
     private Long accountId;
 
     public CredentialsDao() {
