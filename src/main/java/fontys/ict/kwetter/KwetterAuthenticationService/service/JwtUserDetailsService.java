@@ -2,7 +2,9 @@ package fontys.ict.kwetter.KwetterAuthenticationService.service;
 
 import fontys.ict.kwetter.KwetterAuthenticationService.models.CredentialsDao;
 import fontys.ict.kwetter.KwetterAuthenticationService.models.CredentialsDto;
+import fontys.ict.kwetter.KwetterAuthenticationService.models.RoleDao;
 import fontys.ict.kwetter.KwetterAuthenticationService.repositories.CredentialsRepository;
+import fontys.ict.kwetter.KwetterAuthenticationService.repositories.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +19,9 @@ import java.util.Optional;
 public class JwtUserDetailsService implements UserDetailsService {
     @Autowired
     private CredentialsRepository credentialsRepository;
+
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     private PasswordEncoder bcryptEncoder;
@@ -36,6 +41,8 @@ public class JwtUserDetailsService implements UserDetailsService {
         CredentialsDao newCredentials = new CredentialsDao();
         newCredentials.setUsername(credentialsDto.getUsername());
         newCredentials.setHashedPassword(bcryptEncoder.encode(credentialsDto.getPassword()));
+        Optional<RoleDao> role = roleRepository.findRoleDaoByName("user");
+        role.ifPresent(newCredentials::setRole);
         return credentialsRepository.save(newCredentials);
     }
 

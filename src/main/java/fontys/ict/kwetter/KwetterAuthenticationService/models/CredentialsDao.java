@@ -8,22 +8,26 @@ public class CredentialsDao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long accountId;
+    @ManyToOne
+    @JoinColumn(name = "role_id")
+    private RoleDao role;
+    @Column(unique = true)
     private String username;
     @Column
     private String hashedPassword;
 
-    @GeneratedValue
-    private Long accountId;
 
     public CredentialsDao() {
     }
 
-    public CredentialsDao(Long id, String username, String hashedPassword, Long accountId) {
+    public CredentialsDao(Long id, Long accountId, RoleDao role, String username, String hashedPassword) {
         this.id = id;
+        this.accountId = accountId;
+        this.role = role;
         this.username = username;
         this.hashedPassword = hashedPassword;
-        this.accountId = accountId;
     }
 
     public Long getId() {
@@ -56,5 +60,13 @@ public class CredentialsDao {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    public RoleDao getRole() {
+        return role;
+    }
+
+    public void setRole(RoleDao role) {
+        this.role = role;
     }
 }
