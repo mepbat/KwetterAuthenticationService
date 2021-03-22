@@ -6,6 +6,8 @@ import fontys.ict.kwetter.KwetterAuthenticationService.models.CredentialsDto;
 import fontys.ict.kwetter.KwetterAuthenticationService.models.JwtRequest;
 import fontys.ict.kwetter.KwetterAuthenticationService.models.JwtResponse;
 import fontys.ict.kwetter.KwetterAuthenticationService.service.JwtUserDetailsService;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -39,18 +41,21 @@ public class CredentialsController {
         Optional<CredentialsDao> credentialsDao = userDetailsService.getCredentialsByUsername(authenticationRequest.getUsername());
         CredentialsDao credentials;
         if(credentialsDao.isEmpty()){
-            return ResponseEntity.ok(new JwtResponse(null));
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
         credentials = credentialsDao.get();
 
         final String token = jwtTokenUtil.generateToken(userDetails, credentials);
 
-        return ResponseEntity.ok(new JwtResponse(token));
+        return new ResponseEntity<>(new JwtResponse(token), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<?> saveUser(@RequestBody CredentialsDto credentialsDto) {
-        return ResponseEntity.ok(userDetailsService.save(credentialsDto));
+        if(userDetailsService.getCredentialsByUsername(credentialsDto.getUsername()).isPresent()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(userDetailsService.save(credentialsDto), HttpStatus.CREATED);
     }
 
     private void authenticate(String username, String password) throws Exception {

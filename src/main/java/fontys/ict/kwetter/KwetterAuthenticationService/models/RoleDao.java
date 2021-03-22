@@ -1,5 +1,7 @@
 package fontys.ict.kwetter.KwetterAuthenticationService.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -11,6 +13,7 @@ public class RoleDao {
     private Long id;
     @Column
     private String name;
+    @JsonIgnore
     @OneToMany(mappedBy = "role")
     List<CredentialsDao> credentialsDaoList;
 
