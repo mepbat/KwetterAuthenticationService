@@ -42,6 +42,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         newCredentials.setUsername(credentialsDto.getUsername());
         newCredentials.setHashedPassword(bcryptEncoder.encode(credentialsDto.getPassword()));
         Optional<RoleDao> role = roleRepository.findRoleDaoByName("user");
+        //newCredentials.setAccountId();
         role.ifPresent(newCredentials::setRole);
         return credentialsRepository.save(newCredentials);
     }

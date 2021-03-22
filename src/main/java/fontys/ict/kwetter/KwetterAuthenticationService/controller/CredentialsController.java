@@ -6,6 +6,8 @@ import fontys.ict.kwetter.KwetterAuthenticationService.models.CredentialsDto;
 import fontys.ict.kwetter.KwetterAuthenticationService.models.JwtRequest;
 import fontys.ict.kwetter.KwetterAuthenticationService.models.JwtResponse;
 import fontys.ict.kwetter.KwetterAuthenticationService.service.JwtUserDetailsService;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +27,18 @@ public class CredentialsController {
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
     private final JwtUserDetailsService userDetailsService;
+    private final AmqpTemplate rabbitTemplate;
 
-    public CredentialsController(JwtTokenUtil jwtTokenUtil, AuthenticationManager authenticationManager, JwtUserDetailsService userDetailsService) {
+    @Value("${rabbitmq.exchange}")
+    private String exchange;
+    @Value("${rabbitmq.routingKey}")
+    private String routingkey;
+
+    public CredentialsController(JwtTokenUtil jwtTokenUtil, AuthenticationManager authenticationManager, JwtUserDetailsService userDetailsService, AmqpTemplate rabbitTemplate) {
         this.jwtTokenUtil = jwtTokenUtil;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
@@ -55,7 +64,8 @@ public class CredentialsController {
         if(userDetailsService.getCredentialsByUsername(credentialsDto.getUsername()).isPresent()){
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(userDetailsService.save(credentialsDto), HttpStatus.CREATED);
+        createAccount(userDetailsService.save(credentialsDto));
+        return new ResponseEntity<>("Account Created", HttpStatus.CREATED);
     }
 
     private void authenticate(String username, String password) throws Exception {
@@ -68,6 +78,8 @@ public class CredentialsController {
         }
     }
 
-
+    private void createAccount(CredentialsDao credentialsDao){
+        rabbitTemplate.convertAndSend(exchange, routingkey, credentialsDao);
+    }
 
 }
