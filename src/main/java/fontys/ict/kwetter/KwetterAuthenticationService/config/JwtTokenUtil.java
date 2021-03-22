@@ -1,5 +1,6 @@
 package fontys.ict.kwetter.KwetterAuthenticationService.config;
 
+import fontys.ict.kwetter.KwetterAuthenticationService.models.CredentialsDao;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -54,14 +55,14 @@ public class JwtTokenUtil implements Serializable {
         return false;
     }
 
-    public String generateToken(UserDetails userDetails, String accountId) {
+    public String generateToken(UserDetails userDetails, CredentialsDao credentialsDao) {
         Map<String, Object> claims = new HashMap<>();
-        return doGenerateToken(claims, userDetails.getUsername(), accountId);
+        return doGenerateToken(claims, userDetails.getUsername(), credentialsDao);
     }
 
-    private String doGenerateToken(Map<String, Object> claims, String subject, String accountId) {
+    private String doGenerateToken(Map<String, Object> claims, String subject, CredentialsDao credentialsDao) {
 
-        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis())).setId(accountId)
+        return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis())).setId(credentialsDao.getId().toString()).claim("role", credentialsDao.getRole().getName())
                 .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000)).signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 

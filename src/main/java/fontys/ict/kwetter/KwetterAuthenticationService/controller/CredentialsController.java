@@ -43,7 +43,7 @@ public class CredentialsController {
         }
         credentials = credentialsDao.get();
 
-        final String token = jwtTokenUtil.generateToken(userDetails, credentials.getAccountId().toString());
+        final String token = jwtTokenUtil.generateToken(userDetails, credentials);
 
         return ResponseEntity.ok(new JwtResponse(token));
     }
