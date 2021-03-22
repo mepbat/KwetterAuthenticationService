@@ -13,7 +13,8 @@ public class CredentialsDao {
     @Column
     private String hashedPassword;
 
-    @Column(name = "account_id", nullable = false)
+    @GeneratedValue
+    @Column(name = "account_id")
     private Long accountId;
 
     public CredentialsDao() {
