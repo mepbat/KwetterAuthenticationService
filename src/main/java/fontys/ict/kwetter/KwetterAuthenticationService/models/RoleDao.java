@@ -13,7 +13,6 @@ public class RoleDao {
     private Long id;
     @Column
     private String name;
-    @JsonIgnore
     @OneToMany(mappedBy = "role")
     List<CredentialsDao> credentialsDaoList;
 

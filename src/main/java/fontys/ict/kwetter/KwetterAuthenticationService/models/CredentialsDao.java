@@ -1,5 +1,7 @@
 package fontys.ict.kwetter.KwetterAuthenticationService.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -8,9 +10,8 @@ public class CredentialsDao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long accountId;
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "role_id")
     private RoleDao role;
     @Column(unique = true)
@@ -22,9 +23,8 @@ public class CredentialsDao {
     public CredentialsDao() {
     }
 
-    public CredentialsDao(Long id, Long accountId, RoleDao role, String username, String hashedPassword) {
+    public CredentialsDao(Long id, RoleDao role, String username, String hashedPassword) {
         this.id = id;
-        this.accountId = accountId;
         this.role = role;
         this.username = username;
         this.hashedPassword = hashedPassword;
@@ -52,14 +52,6 @@ public class CredentialsDao {
 
     public void setHashedPassword(String hashedPassword) {
         this.hashedPassword = hashedPassword;
-    }
-
-    public Long getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
     }
 
     public RoleDao getRole() {
