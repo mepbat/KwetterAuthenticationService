@@ -41,13 +41,16 @@ public class CredentialsController {
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
 
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-
+        try {
+            authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+        } catch (Exception e){
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+        }
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         Optional<CredentialsDao> credentialsDao = userDetailsService.getCredentialsByUsername(authenticationRequest.getUsername());
         CredentialsDao credentials;
         if(credentialsDao.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Incorrect username or password!", HttpStatus.UNAUTHORIZED);
         }
         credentials = credentialsDao.get();
 
@@ -60,10 +63,10 @@ public class CredentialsController {
     public ResponseEntity<?> saveUser(@RequestBody CredentialsDto credentialsDto) {
         if (credentialsDto.getUsername().isEmpty() || credentialsDto.getUsername() == null ||
                 credentialsDto.getPassword().isEmpty() || credentialsDto.getPassword() == null) {
-            return new ResponseEntity<>("Your email or password cannot be empty!", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Your username or password cannot be empty!", HttpStatus.BAD_REQUEST);
         }
         if(userDetailsService.getCredentialsByUsername(credentialsDto.getUsername()).isPresent()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("User already exists!", HttpStatus.BAD_REQUEST);
         }
         CredentialsDao newCredentials = userDetailsService.save(credentialsDto);
         createAccount(newCredentials);
@@ -74,9 +77,9 @@ public class CredentialsController {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         } catch (DisabledException e) {
-            throw new Exception("USER_DISABLED", e);
+            throw new Exception("User disabled!", e);
         } catch (BadCredentialsException e) {
-            throw new Exception("INVALID_CREDENTIALS", e);
+            throw new Exception("Incorrect username or password!", e);
         }
     }
 
