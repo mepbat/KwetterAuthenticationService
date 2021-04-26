@@ -14,7 +14,7 @@
 	<name>kwetter-authentication-service</name>
 	<description>Authentication Service for Kwetter</description>
 	<properties>
-		<java.version>15</java.version>
+		<java.version>16</java.version>
 	</properties>
 	<dependencies>
 		<dependency>
