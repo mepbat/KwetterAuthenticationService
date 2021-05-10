@@ -10,6 +10,9 @@ public class CredentialsDao {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column
+    private boolean active;
     @ManyToOne
     @JsonIgnore
     @JoinColumn(name = "role_id")
@@ -19,12 +22,12 @@ public class CredentialsDao {
     @Column
     private String hashedPassword;
 
-
     public CredentialsDao() {
     }
 
-    public CredentialsDao(Long id, RoleDao role, String username, String hashedPassword) {
+    public CredentialsDao(Long id, boolean active, RoleDao role, String username, String hashedPassword) {
         this.id = id;
+        this.active = active;
         this.role = role;
         this.username = username;
         this.hashedPassword = hashedPassword;
@@ -36,6 +39,14 @@ public class CredentialsDao {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public String getUsername() {

@@ -1,6 +1,9 @@
 package fontys.ict.kwetter.KwetterAuthenticationService.controller;
 
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import fontys.ict.kwetter.KwetterAuthenticationService.config.JwtTokenUtil;
 import fontys.ict.kwetter.KwetterAuthenticationService.events.CreateAccountEvent;
 import fontys.ict.kwetter.KwetterAuthenticationService.models.*;
@@ -16,6 +19,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -30,12 +36,35 @@ public class CredentialsController {
     @Value("${rabbitmq.exchange}")
     private String exchange;
 
-    public CredentialsController(JwtTokenUtil jwtTokenUtil, AuthenticationManager authenticationManager, JwtUserDetailsService userDetailsService, AmqpTemplate rabbitTemplate, Gson gson) {
+    public CredentialsController(JwtTokenUtil jwtTokenUtil, AuthenticationManager authenticationManager, JwtUserDetailsService userDetailsService, AmqpTemplate rabbitTemplate) {
         this.jwtTokenUtil = jwtTokenUtil;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.rabbitTemplate = rabbitTemplate;
-        this.gson = gson;
+        this.gson = initiateGson();
+    }
+
+    @RequestMapping(value = "/getAll", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<?> getAll() {
+        return new ResponseEntity<>(gson.toJson(userDetailsService.getAll()), HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/activate/{username}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<?> activate(@PathVariable("username") String username) {
+        userDetailsService.activate(username);
+        return new ResponseEntity<>("OK", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/deactivate/{username}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<?> deactivate(@PathVariable("username") String username) {
+        userDetailsService.deactivate(username);
+        return new ResponseEntity<>("OK", HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/promote/{username}", method = RequestMethod.GET, produces = "application/json")
+    public ResponseEntity<?> promote(@PathVariable("username") String username) {
+        userDetailsService.promote(username);
+        return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
@@ -89,4 +118,35 @@ public class CredentialsController {
         createAccountEvent.setId(credentialsDao.getId());
         rabbitTemplate.convertAndSend(exchange, "create-account", gson.toJson(createAccountEvent));
     }
+
+    private Gson initiateGson() {
+        GsonBuilder b = new GsonBuilder();
+        b.registerTypeAdapterFactory(HibernateProxyTypeAdapter.FACTORY)
+                .excludeFieldsWithModifiers(Modifier.TRANSIENT)
+                .setExclusionStrategies(new ExclusionStrategy() {
+                    @Override
+                    public boolean shouldSkipField(FieldAttributes f) {
+                        boolean exclude = false;
+                        try {
+                            exclude = EXCLUDE.contains(f.getName());
+                            if (f.getDeclaredClass() == CredentialsDao.class) {
+                                exclude = true;
+                            }
+
+                        } catch (Exception ignore) {
+                        }
+                        return exclude;
+                    }
+
+                    @Override
+                    public boolean shouldSkipClass(Class<?> clazz) {
+                        return false;
+                    }
+                });
+        return b.create();
+    }
+
+    private static final List<String> EXCLUDE = new ArrayList<>() {{
+        add("credentialsDaoList");
+    }};
 }

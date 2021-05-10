@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,7 +45,41 @@ public class JwtUserDetailsService implements UserDetailsService {
         Optional<RoleDao> role = roleRepository.findRoleDaoByName("user");
         //newCredentials.setAccountId();
         role.ifPresent(newCredentials::setRole);
+        newCredentials.setActive(true);
         return credentialsRepository.save(newCredentials);
+    }
+
+    public List<CredentialsDao> getAll(){
+        List<CredentialsDao> credentialsDaos = credentialsRepository.findAll();
+        for (CredentialsDao credentialsDao: credentialsDaos) {
+            credentialsDao.setHashedPassword(null);
+        }
+        return credentialsDaos;
+    }
+
+    public void activate(String username){
+        Optional<CredentialsDao> optionalCredentialsDao = credentialsRepository.findByUsername(username);
+        if(optionalCredentialsDao.isEmpty()) return;
+        CredentialsDao credentialsDao = optionalCredentialsDao.get();
+        credentialsDao.setActive(true);
+        credentialsRepository.save(credentialsDao);
+    }
+
+    public void deactivate(String username){
+        Optional<CredentialsDao> optionalCredentialsDao = credentialsRepository.findByUsername(username);
+        if(optionalCredentialsDao.isEmpty()) return;
+        CredentialsDao credentialsDao = optionalCredentialsDao.get();
+        credentialsDao.setActive(false);
+        credentialsRepository.save(credentialsDao);
+    }
+
+    public void promote(String username){
+        Optional<CredentialsDao> optionalCredentialsDao = credentialsRepository.findByUsername(username);
+        if(optionalCredentialsDao.isEmpty()) return;
+        CredentialsDao credentialsDao = optionalCredentialsDao.get();
+        Optional<RoleDao> role = roleRepository.findRoleDaoByName("admin");
+        role.ifPresent(credentialsDao::setRole);
+        credentialsRepository.save(credentialsDao);
     }
 
     public Optional<CredentialsDao> getCredentialsByUsername(String username){
