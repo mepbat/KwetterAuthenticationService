@@ -1,12 +1,14 @@
 pipeline {
+/*   env.JAVA_HOME="${tool 'openjdk_11_0_1'}"
+  env.PATH="${env.JAVA_HOME}/bin:${env.PATH}" */
   agent any
   tools {
     maven 'maven 3.6.3'
+    jdk 'openjdk-11'
   }
   stages {
       stage('run test') {
         steps {
-            echo $JAVA_HOME
             sh 'mvn test'
         }
       }
