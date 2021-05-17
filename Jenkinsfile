@@ -7,12 +7,12 @@ pipeline {
   stages {
       stage('run test') {
         steps {
-            sh 'mvn test'
+            bat 'mvn test'
         }
       }
       stage('SonarQube analysis') {
         steps {
-            sh 'mvn clean package sonar:sonar -Dsonar.login=e56a75b4a25e9212c3cf4bf08c13805096b6b051'
+            bat 'mvn clean package sonar:sonar -Dsonar.login=e56a75b4a25e9212c3cf4bf08c13805096b6b051'
         }
       }
       stage('Deployment') {
