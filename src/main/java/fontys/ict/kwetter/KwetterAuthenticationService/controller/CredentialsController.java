@@ -12,6 +12,7 @@ import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -49,19 +50,20 @@ public class CredentialsController {
         return new ResponseEntity<>(gson.toJson(userDetailsService.getAll()), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/activate/{username}", method = RequestMethod.GET, produces = "application/json")
+    @PreAuthorize("hasAnyRole('admin')")
+    @RequestMapping(value = "/activate/{username}", method = RequestMethod.GET)
     public ResponseEntity<?> activate(@PathVariable("username") String username) {
         userDetailsService.activate(username);
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/deactivate/{username}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/deactivate/{username}", method = RequestMethod.GET)
     public ResponseEntity<?> deactivate(@PathVariable("username") String username) {
         userDetailsService.deactivate(username);
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/promote/{username}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/promote/{username}", method = RequestMethod.GET)
     public ResponseEntity<?> promote(@PathVariable("username") String username) {
         userDetailsService.promote(username);
         return new ResponseEntity<>("OK", HttpStatus.OK);
@@ -82,7 +84,10 @@ public class CredentialsController {
             return new ResponseEntity<>("Incorrect username or password!", HttpStatus.UNAUTHORIZED);
         }
         credentials = credentialsDao.get();
+        if(!credentials.isActive()) {
+            return new ResponseEntity<>("Account deactivated!", HttpStatus.UNAUTHORIZED);
 
+        }
         final String token = jwtTokenUtil.generateToken(userDetails, credentials);
 
         return new ResponseEntity<>(new JwtResponse(token), HttpStatus.OK);
