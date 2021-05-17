@@ -6,6 +6,7 @@ pipeline {
   stages {
       stage('run test') {
         steps {
+            echo %JAVA_HOME%
             sh 'mvn test'
         }
       }
