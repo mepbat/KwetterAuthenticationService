@@ -12,7 +12,7 @@ pipeline {
       }
       stage('SonarQube analysis') {
         steps {
-            sh 'mvn clean package sonar:sonar -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=e56a75b4a25e9212c3cf4bf08c13805096b6b051'
+            sh 'mvn clean package sonar:sonar -Dsonar.host.url=http://sonarqube:9000 -Dsonar.login=e7159ea32d56c7374a869244c6d7b379afd62769'
         }
       }
       stage('Deployment') {
