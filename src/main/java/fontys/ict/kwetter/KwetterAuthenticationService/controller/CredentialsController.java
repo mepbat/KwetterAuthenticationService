@@ -45,24 +45,27 @@ public class CredentialsController {
         this.gson = initiateGson();
     }
 
+    @PreAuthorize("hasAnyAuthority('admin')")
     @RequestMapping(value = "/getAll", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity<?> getAll() {
         return new ResponseEntity<>(gson.toJson(userDetailsService.getAll()), HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAnyRole('admin')")
+    @PreAuthorize("hasAnyAuthority('admin')")
     @RequestMapping(value = "/activate/{username}", method = RequestMethod.GET)
     public ResponseEntity<?> activate(@PathVariable("username") String username) {
         userDetailsService.activate(username);
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyAuthority('admin')")
     @RequestMapping(value = "/deactivate/{username}", method = RequestMethod.GET)
     public ResponseEntity<?> deactivate(@PathVariable("username") String username) {
         userDetailsService.deactivate(username);
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyAuthority('admin')")
     @RequestMapping(value = "/promote/{username}", method = RequestMethod.GET)
     public ResponseEntity<?> promote(@PathVariable("username") String username) {
         userDetailsService.promote(username);

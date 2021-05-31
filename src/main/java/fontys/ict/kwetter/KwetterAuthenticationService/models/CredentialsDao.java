@@ -22,6 +22,8 @@ public class CredentialsDao {
     @Column
     private String hashedPassword;
 
+
+
     public CredentialsDao() {
     }
 
